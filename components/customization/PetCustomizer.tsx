@@ -7,6 +7,7 @@ interface PetCustomizerProps {
   partsColors: PartsColors;
   availableTextures: string[];
   hidePetName?: boolean;
+  partImages?: { top?: string; ball?: string; base?: string };
 }
 
 const ColorPicker: React.FC<{
@@ -14,26 +15,40 @@ const ColorPicker: React.FC<{
   colors: ColorOption[];
   selected: ColorOption;
   onSelect: (c: ColorOption) => void;
-}> = ({ label, colors, selected, onSelect }) => (
+  imageUrl?: string;
+}> = ({ label, colors, selected, onSelect, imageUrl }) => (
   <div>
     <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">{label}</p>
-    <div className="flex flex-wrap gap-2">
-      {colors.map(c => (
-        <button
-          key={c.hex}
-          type="button"
-          title={c.name}
-          onClick={() => onSelect(c)}
-          className={`w-8 h-8 rounded-full border-2 transition-all ${selected.hex === c.hex ? 'border-indigo-500 scale-110 shadow-md' : 'border-slate-300 hover:scale-105'}`}
-          style={{ backgroundColor: c.hex }}
-        />
-      ))}
+    <div className="flex items-center gap-4">
+      {imageUrl && (
+        <div className="relative w-20 h-20 rounded-xl overflow-hidden border border-slate-200 flex-shrink-0 bg-slate-50">
+          <img src={imageUrl} alt={label} className="w-full h-full object-contain" />
+          <div
+            className="absolute inset-0"
+            style={{ backgroundColor: selected.hex, mixBlendMode: 'multiply', opacity: 0.85 }}
+          />
+        </div>
+      )}
+      <div className="flex-1">
+        <div className="flex flex-wrap gap-2">
+          {colors.map(c => (
+            <button
+              key={c.hex}
+              type="button"
+              title={c.name}
+              onClick={() => onSelect(c)}
+              className={`w-8 h-8 rounded-full border-2 transition-all ${selected.hex === c.hex ? 'border-indigo-500 scale-110 shadow-md' : 'border-slate-300 hover:scale-105'}`}
+              style={{ backgroundColor: c.hex }}
+            />
+          ))}
+        </div>
+        <p className="text-xs text-slate-400 mt-1">{selected.name}</p>
+      </div>
     </div>
-    <p className="text-xs text-slate-400 mt-1">{selected.name}</p>
   </div>
 );
 
-export const PetCustomizer: React.FC<PetCustomizerProps> = ({ value, onChange, partsColors, availableTextures, hidePetName = false }) => {
+export const PetCustomizer: React.FC<PetCustomizerProps> = ({ value, onChange, partsColors, availableTextures, hidePetName = false, partImages }) => {
   const colors = {
     base: partsColors.base.length > 0 ? partsColors.base : DEFAULT_COLORS,
     ball: partsColors.ball.length > 0 ? partsColors.ball : DEFAULT_COLORS,
@@ -56,9 +71,9 @@ export const PetCustomizer: React.FC<PetCustomizerProps> = ({ value, onChange, p
         </div>
       )}
 
-      <ColorPicker label="Cor da Tampa" colors={colors.top} selected={value.topColor} onSelect={c => onChange({ ...value, topColor: c })} />
-      <ColorPicker label="Cor da Bola" colors={colors.ball} selected={value.ballColor} onSelect={c => onChange({ ...value, ballColor: c })} />
-      <ColorPicker label="Cor da Base" colors={colors.base} selected={value.baseColor} onSelect={c => onChange({ ...value, baseColor: c })} />
+      <ColorPicker label="Cor da Tampa" colors={colors.top} selected={value.topColor} onSelect={c => onChange({ ...value, topColor: c })} imageUrl={partImages?.top} />
+      <ColorPicker label="Cor da Bola" colors={colors.ball} selected={value.ballColor} onSelect={c => onChange({ ...value, ballColor: c })} imageUrl={partImages?.ball} />
+      <ColorPicker label="Cor da Base" colors={colors.base} selected={value.baseColor} onSelect={c => onChange({ ...value, baseColor: c })} imageUrl={partImages?.base} />
 
       <div>
         <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Textura</p>
