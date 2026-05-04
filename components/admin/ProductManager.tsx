@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, Package, Star, Eye, EyeOff } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Plus, Pencil, Trash2, Package, Star, Eye, EyeOff, Upload, Loader2 } from 'lucide-react';
 import { Product, ProductLine } from '../../types';
 import { fetchAllProducts, addProduct, updateProduct, deleteProduct } from '../../services/supabase';
+import { uploadImageToGitHub } from '../../services/github';
 import { Button } from '../ui/Button';
 import { Logo } from '../ui/Logo';
 
@@ -27,6 +28,28 @@ export const ProductManager: React.FC = () => {
   const [form, setForm] = useState(emptyProduct());
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const token = localStorage.getItem('app-github-token');
+    if (!token) {
+      setError('Token GitHub não configurado. Vá em Configurações → Nuvem e adicione seu token.');
+      return;
+    }
+    setUploading(true);
+    setError('');
+    const res = await uploadImageToGitHub(token, file);
+    setUploading(false);
+    if (res.success && res.url) {
+      setForm(f => ({ ...f, imageUrl: res.url! }));
+    } else {
+      setError(res.message || 'Erro ao fazer upload da imagem.');
+    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
 
   const load = async () => {
     setLoading(true);
@@ -172,9 +195,18 @@ export const ProductManager: React.FC = () => {
                   </select>
                 </div>
                 <div className="col-span-2">
-                  <label className="block text-sm font-medium text-slate-700 mb-1">URL da Imagem</label>
-                  <input value={form.imageUrl} onChange={e => setForm({ ...form, imageUrl: e.target.value })}
-                    placeholder="https://..." className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-indigo-500 text-sm" />
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Imagem</label>
+                  <div className="flex gap-2 items-start">
+                    <input value={form.imageUrl} onChange={e => setForm({ ...form, imageUrl: e.target.value })}
+                      placeholder="https://... ou faça upload →" className="flex-1 rounded-lg border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-indigo-500 text-sm" />
+                    <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                    <Button type="button" size="sm" variant="outline" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
+                      {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                    </Button>
+                  </div>
+                  {form.imageUrl && (
+                    <img src={form.imageUrl} alt="preview" className="mt-2 h-20 w-20 object-cover rounded-lg border border-slate-200" onError={e => (e.target as HTMLImageElement).style.display = 'none'} />
+                  )}
                 </div>
                 <div className="flex items-center gap-4">
                   <label className="flex items-center gap-2 cursor-pointer text-sm">
