@@ -58,9 +58,9 @@ const PERSONALIZED_PRODUCTS = ['LickBowl'];
 // URLs das imagens das peças por produto — substitua após fazer upload no GitHub
 const PART_IMAGES: Record<string, { top?: string; ball?: string; base?: string }> = {
   LickBowl: {
-    top: '',
-    ball: '',
-    base: '',
+    top: 'https://raw.githubusercontent.com/printmypet/PrintMy3D/master/public/images/products/top_1777918530043.png',
+    ball: 'https://raw.githubusercontent.com/printmypet/PrintMy3D/master/public/images/products/ball_1777918550269.png',
+    base: 'https://raw.githubusercontent.com/printmypet/PrintMy3D/master/public/images/products/base_1777918570077.png',
   },
 };
 
