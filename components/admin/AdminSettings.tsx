@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Database, Plus, Trash2, User, Key, Shield, TestTube, CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { Database, Plus, Trash2, User, Key, Shield, TestTube, CheckCircle, XCircle, Loader2, Pencil } from 'lucide-react';
 import { AppUser, SupabaseConfig, ColorOption, Texture, DEFAULT_COLORS, DEFAULT_TEXTURES, PartsColors } from '../../types';
 import { testConnection, fetchUsers, registerUser, updateUser, deleteUser, addColor, deleteColor, addTexture, deleteTexture } from '../../services/supabase';
 import { Button } from '../ui/Button';
@@ -103,6 +103,9 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({
   const [newUserName, setNewUserName] = useState('');
   const [newRole, setNewRole] = useState<'admin' | 'user'>('user');
   const [userError, setUserError] = useState('');
+  const [editingUserId, setEditingUserId] = useState<string | null>(null);
+  const [editPassword, setEditPassword] = useState('');
+  const [editPasswordError, setEditPasswordError] = useState('');
 
   const loadUsers = async () => {
     const data = await fetchUsers();
@@ -127,6 +130,18 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({
     if (!confirm(`Excluir usuário "${user.name}"?`)) return;
     await deleteUser(user.id);
     await loadUsers();
+  };
+
+  const handleChangePassword = async (user: AppUser) => {
+    setEditPasswordError('');
+    if (!editPassword.trim()) { setEditPasswordError('Digite a nova senha.'); return; }
+    const res = await updateUser({ ...user, password: editPassword.trim() });
+    if (res?.success !== false) {
+      setEditingUserId(null);
+      setEditPassword('');
+    } else {
+      setEditPasswordError('Erro ao alterar senha.');
+    }
   };
 
   const tabs: { id: Tab; label: string }[] = [
@@ -409,18 +424,35 @@ values ('Admin', 'admin', 'admin123', 'admin');`}</pre>
             ) : (
               <div className="space-y-2">
                 {users.map(u => (
-                  <div key={u.id} className="flex items-center gap-3 bg-slate-50 rounded-lg px-4 py-3">
-                    <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
-                      <User className="w-4 h-4 text-indigo-600" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-slate-900">{u.name}</p>
-                      <p className="text-xs text-slate-500">@{u.username} · {u.role}</p>
-                    </div>
-                    {currentUser.role === 'admin' && u.id !== currentUser.id && (
-                      <button onClick={() => handleDeleteUser(u)} className="text-red-400 hover:text-red-600">
-                        <Trash2 className="w-4 h-4" />
+                  <div key={u.id} className="bg-slate-50 rounded-lg px-4 py-3 space-y-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
+                        <User className="w-4 h-4 text-indigo-600" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-slate-900">{u.name}</p>
+                        <p className="text-xs text-slate-500">@{u.username} · {u.role}</p>
+                      </div>
+                      <button onClick={() => { setEditingUserId(editingUserId === u.id ? null : u.id!); setEditPassword(''); setEditPasswordError(''); }}
+                        className="text-slate-400 hover:text-indigo-500" title="Alterar senha">
+                        <Pencil className="w-4 h-4" />
                       </button>
+                      {currentUser.role === 'admin' && u.id !== currentUser.id && (
+                        <button onClick={() => handleDeleteUser(u)} className="text-red-400 hover:text-red-600">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                    {editingUserId === u.id && (
+                      <div className="flex gap-2 items-center pt-1">
+                        <input type="password" value={editPassword} onChange={e => setEditPassword(e.target.value)}
+                          placeholder="Nova senha" onKeyDown={e => e.key === 'Enter' && handleChangePassword(u)}
+                          className="flex-1 rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500" />
+                        <Button size="sm" onClick={() => handleChangePassword(u)}>Salvar</Button>
+                      </div>
+                    )}
+                    {editingUserId === u.id && editPasswordError && (
+                      <p className="text-red-500 text-xs">{editPasswordError}</p>
                     )}
                   </div>
                 ))}
