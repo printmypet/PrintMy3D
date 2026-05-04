@@ -75,8 +75,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, partsColors, 
     const finalPrice = isPersonalizable && wantsPersonalization
       ? product.price + PERSONALIZATION_PRICE
       : product.price;
-    const finalCustomization: Customization = isPersonalizable
-      ? { ...initialCustomization(product), observations: wantsPersonalization ? `Nome do pet: ${personalizationPetName.trim()}` : '' } as any
+    const finalCustomization: Customization = isPersonalizable && wantsPersonalization
+      ? { ...customization, observations: `Nome do pet: ${personalizationPetName.trim()}` } as any
       : customization;
     const item: CartItem = {
       id: uuidv4(),
@@ -149,9 +149,29 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, partsColors, 
               </button>
             </div>
 
-            <div className="p-5">
-              {isPersonalizable ? (
-                <div className="space-y-4">
+            <div className="p-5 space-y-4">
+              {product.line === 'PET' && (
+                <PetCustomizer
+                  value={customization as PetCustomization}
+                  onChange={v => setCustomization(v)}
+                  partsColors={partsColors}
+                  availableTextures={availableTextures}
+                />
+              )}
+              {product.line === 'HOME' && (
+                <HomeCustomizer
+                  value={customization as HomeCustomization}
+                  onChange={v => setCustomization(v)}
+                />
+              )}
+              {product.line === 'SELF' && (
+                <SelfCustomizer
+                  value={customization as SelfCustomization}
+                  onChange={v => setCustomization(v)}
+                />
+              )}
+              {isPersonalizable && (
+                <div className="space-y-3 pt-2 border-t border-slate-100">
                   <label className={`flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-colors ${wantsPersonalization ? 'border-indigo-500 bg-indigo-50' : 'border-slate-200 hover:border-slate-300'}`}>
                     <div>
                       <p className="font-medium text-slate-900">Personalizar</p>
@@ -176,34 +196,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, partsColors, 
                         onChange={e => setPersonalizationPetName(e.target.value)}
                         placeholder="Ex: Thor, Mel, Bob..."
                         className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
-                        autoFocus
                       />
                     </div>
                   )}
                 </div>
-              ) : (
-                <>
-                  {product.line === 'PET' && (
-                    <PetCustomizer
-                      value={customization as PetCustomization}
-                      onChange={v => setCustomization(v)}
-                      partsColors={partsColors}
-                      availableTextures={availableTextures}
-                    />
-                  )}
-                  {product.line === 'HOME' && (
-                    <HomeCustomizer
-                      value={customization as HomeCustomization}
-                      onChange={v => setCustomization(v)}
-                    />
-                  )}
-                  {product.line === 'SELF' && (
-                    <SelfCustomizer
-                      value={customization as SelfCustomization}
-                      onChange={v => setCustomization(v)}
-                    />
-                  )}
-                </>
               )}
             </div>
 
