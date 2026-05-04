@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { PetCustomization, ColorOption, PartsColors, DEFAULT_COLORS, DEFAULT_TEXTURES } from '../../types';
 
 const hashName = (s: string): number => {
@@ -134,6 +134,7 @@ interface PetCustomizerProps {
   availableTextures: string[];
   hidePetName?: boolean;
   partImages?: { top?: string; ball?: string; base?: string };
+  comedouroMode?: boolean;
 }
 
 const ColorPicker: React.FC<{
@@ -171,12 +172,67 @@ const ColorPicker: React.FC<{
   </div>
 );
 
-export const PetCustomizer: React.FC<PetCustomizerProps> = ({ value, onChange, partsColors, availableTextures, hidePetName = false, partImages }) => {
+export const PetCustomizer: React.FC<PetCustomizerProps> = ({ value, onChange, partsColors, availableTextures, hidePetName = false, partImages, comedouroMode = false }) => {
+  const [comedouroColorCount, setComedouroColorCount] = useState<'single' | 'double'>('single');
+
   const colors = {
     base: partsColors.base.length > 0 ? partsColors.base : DEFAULT_COLORS,
     ball: partsColors.ball.length > 0 ? partsColors.ball : DEFAULT_COLORS,
     top: partsColors.top.length > 0 ? partsColors.top : DEFAULT_COLORS,
   };
+  const allColors = colors.base;
+
+  if (comedouroMode) {
+    return (
+      <div className="space-y-5">
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Nome do Pet <span className="text-red-500">*</span></label>
+          <input
+            type="text"
+            value={value.petName}
+            onChange={e => onChange({ ...value, petName: e.target.value })}
+            placeholder="Ex: Rex, Luna, Bolinha..."
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            required
+          />
+        </div>
+
+        <div>
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Opção de cor</p>
+          <div className="flex gap-3">
+            {(['single', 'double'] as const).map(opt => (
+              <label key={opt} className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition-colors ${comedouroColorCount === opt ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-slate-200 text-slate-600 hover:border-slate-300'}`}>
+                <input type="radio" className="hidden" checked={comedouroColorCount === opt} onChange={() => setComedouroColorCount(opt)} />
+                <span className="text-sm font-medium">{opt === 'single' ? 'Uma Cor' : 'Duas Cores'}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {comedouroColorCount === 'single' && (
+          <ColorPicker label="Escolha a Cor" colors={allColors} selected={value.baseColor} onSelect={c => onChange({ ...value, baseColor: c, topColor: c, ballColor: c })} />
+        )}
+
+        {comedouroColorCount === 'double' && (
+          <>
+            <ColorPicker label="Cor da Base" colors={allColors} selected={value.baseColor} onSelect={c => onChange({ ...value, baseColor: c })} />
+            <ColorPicker label="Cor Superior" colors={allColors} selected={value.topColor} onSelect={c => onChange({ ...value, topColor: c })} />
+          </>
+        )}
+
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Observações</label>
+          <textarea
+            value={value.observations}
+            onChange={e => onChange({ ...value, observations: e.target.value })}
+            placeholder="Informações adicionais sobre o pedido..."
+            rows={3}
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-indigo-500 resize-none"
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5">
