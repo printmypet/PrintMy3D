@@ -15,14 +15,17 @@ const customizationSummary = (item: CartItem): string => {
   const c = item.customization;
   if (c.type === 'PET') {
     const p = c as PetCustomization;
+    if (p.observations && !p.petName) return p.observations;
     return `Pet: ${p.petName || '—'} | Base: ${p.baseColor.name} | Corpo: ${p.ballColor.name} | Topo: ${p.topColor.name}`;
   }
   if (c.type === 'HOME') {
     const h = c as HomeCustomization;
-    return [h.color.name, h.material, h.dimensions].filter(Boolean).join(' | ');
+    const parts = [h.color?.name, h.material, h.dimensions, h.observations].filter(Boolean);
+    return parts.join(' | ') || '—';
   }
   const s = c as SelfCustomization;
-  return [s.color.name, s.material, s.customText].filter(Boolean).join(' | ');
+  const parts = [s.color?.name, s.material, s.customText, s.observations].filter(Boolean);
+  return parts.join(' | ') || '—';
 };
 
 export const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, items, onClose, onRemove, onCheckout }) => {

@@ -52,24 +52,43 @@ const initialCustomization = (product: Product): Customization => {
   } as SelfCustomization;
 };
 
+const PERSONALIZATION_PRICE = 9.90;
+const PERSONALIZED_PRODUCTS = ['LickBowl'];
+
 export const ProductCard: React.FC<ProductCardProps> = ({ product, partsColors, availableTextures, onAddToCart }) => {
   const [showModal, setShowModal] = useState(false);
   const [customization, setCustomization] = useState<Customization>(() => initialCustomization(product));
+  const [wantsPersonalization, setWantsPersonalization] = useState(false);
+  const [personalizationPetName, setPersonalizationPetName] = useState('');
+
+  const isPersonalizable = PERSONALIZED_PRODUCTS.includes(product.name);
 
   const handleAdd = () => {
-    if (product.line === 'PET' && !(customization as PetCustomization).petName.trim()) {
+    if (product.line === 'PET' && !isPersonalizable && !(customization as PetCustomization).petName.trim()) {
       alert('Por favor, informe o nome do pet.');
       return;
     }
+    if (isPersonalizable && wantsPersonalization && !personalizationPetName.trim()) {
+      alert('Por favor, informe o nome do pet.');
+      return;
+    }
+    const finalPrice = isPersonalizable && wantsPersonalization
+      ? product.price + PERSONALIZATION_PRICE
+      : product.price;
+    const finalCustomization: Customization = isPersonalizable
+      ? { ...initialCustomization(product), observations: wantsPersonalization ? `Nome do pet: ${personalizationPetName.trim()}` : '' } as any
+      : customization;
     const item: CartItem = {
       id: uuidv4(),
-      product,
-      customization,
+      product: { ...product, price: finalPrice },
+      customization: finalCustomization,
       quantity: 1,
     };
     onAddToCart(item);
     setShowModal(false);
     setCustomization(initialCustomization(product));
+    setWantsPersonalization(false);
+    setPersonalizationPetName('');
   };
 
   const resolveImage = (url: string) => {
@@ -131,25 +150,60 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, partsColors, 
             </div>
 
             <div className="p-5">
-              {product.line === 'PET' && (
-                <PetCustomizer
-                  value={customization as PetCustomization}
-                  onChange={v => setCustomization(v)}
-                  partsColors={partsColors}
-                  availableTextures={availableTextures}
-                />
-              )}
-              {product.line === 'HOME' && (
-                <HomeCustomizer
-                  value={customization as HomeCustomization}
-                  onChange={v => setCustomization(v)}
-                />
-              )}
-              {product.line === 'SELF' && (
-                <SelfCustomizer
-                  value={customization as SelfCustomization}
-                  onChange={v => setCustomization(v)}
-                />
+              {isPersonalizable ? (
+                <div className="space-y-4">
+                  <label className={`flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-colors ${wantsPersonalization ? 'border-indigo-500 bg-indigo-50' : 'border-slate-200 hover:border-slate-300'}`}>
+                    <div>
+                      <p className="font-medium text-slate-900">Personalizar</p>
+                      <p className="text-sm text-slate-500">Adicionar nome do pet gravado</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-semibold text-indigo-600">+ R$ 9,90</span>
+                      <input
+                        type="checkbox"
+                        checked={wantsPersonalization}
+                        onChange={e => setWantsPersonalization(e.target.checked)}
+                        className="w-5 h-5 accent-indigo-600 cursor-pointer"
+                      />
+                    </div>
+                  </label>
+                  {wantsPersonalization && (
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">Nome do Pet <span className="text-red-500">*</span></label>
+                      <input
+                        type="text"
+                        value={personalizationPetName}
+                        onChange={e => setPersonalizationPetName(e.target.value)}
+                        placeholder="Ex: Thor, Mel, Bob..."
+                        className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
+                        autoFocus
+                      />
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <>
+                  {product.line === 'PET' && (
+                    <PetCustomizer
+                      value={customization as PetCustomization}
+                      onChange={v => setCustomization(v)}
+                      partsColors={partsColors}
+                      availableTextures={availableTextures}
+                    />
+                  )}
+                  {product.line === 'HOME' && (
+                    <HomeCustomizer
+                      value={customization as HomeCustomization}
+                      onChange={v => setCustomization(v)}
+                    />
+                  )}
+                  {product.line === 'SELF' && (
+                    <SelfCustomizer
+                      value={customization as SelfCustomization}
+                      onChange={v => setCustomization(v)}
+                    />
+                  )}
+                </>
               )}
             </div>
 
