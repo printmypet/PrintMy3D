@@ -156,6 +156,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, partsColors, 
                   onChange={v => setCustomization(v)}
                   partsColors={partsColors}
                   availableTextures={availableTextures}
+                  hidePetName={isPersonalizable}
                 />
               )}
               {product.line === 'HOME' && (
