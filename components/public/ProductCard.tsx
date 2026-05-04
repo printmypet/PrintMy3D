@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShoppingCart, Package, Star } from 'lucide-react';
+import { ShoppingCart, Package, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Product, CartItem, Customization, PetCustomization, HomeCustomization, SelfCustomization, DEFAULT_COLORS, DEFAULT_TEXTURES, PartsColors } from '../../types';
 import { Button } from '../ui/Button';
 import { Logo } from '../ui/Logo';
@@ -75,6 +75,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, partsColors, 
   const minPrice = hasSizes ? Math.min(...(product.sizes || []).map(s => s.price)) : product.price;
   const [selectedSize, setSelectedSize] = useState<typeof product.sizes[0] | null>(null);
 
+  const images = product.images && product.images.length > 0 ? product.images : (product.imageUrl ? [product.imageUrl] : []);
+  const [imgIndex, setImgIndex] = useState(0);
+  const prevImg = (e: React.MouseEvent) => { e.stopPropagation(); setImgIndex(i => (i - 1 + images.length) % images.length); };
+  const nextImg = (e: React.MouseEvent) => { e.stopPropagation(); setImgIndex(i => (i + 1) % images.length); };
+
   const isPersonalizable = PERSONALIZED_PRODUCTS.includes(product.name.toLowerCase().trim());
   const isComedouro = COMEDOURO_PRODUCTS.includes(product.name.toLowerCase().trim());
 
@@ -123,17 +128,37 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, partsColors, 
   return (
     <>
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
-        <div className="relative bg-slate-100 h-48 flex items-center justify-center overflow-hidden">
-          {product.imageUrl ? (
+        <div className="relative bg-slate-100 h-48 flex items-center justify-center overflow-hidden group">
+          {images.length > 0 ? (
             <img
-              src={resolveImage(product.imageUrl)}
+              src={resolveImage(images[imgIndex])}
               alt={product.name}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover transition-opacity duration-200"
               onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
             />
           ) : (
             <Package className="w-16 h-16 text-slate-300" />
           )}
+
+          {images.length > 1 && (
+            <>
+              <button onClick={prevImg}
+                className="absolute left-1 top-1/2 -translate-y-1/2 w-7 h-7 bg-black/40 hover:bg-black/60 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button onClick={nextImg}
+                className="absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 bg-black/40 hover:bg-black/60 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <ChevronRight className="w-4 h-4" />
+              </button>
+              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+                {images.map((_, i) => (
+                  <button key={i} onClick={e => { e.stopPropagation(); setImgIndex(i); }}
+                    className={`w-1.5 h-1.5 rounded-full transition-colors ${i === imgIndex ? 'bg-white' : 'bg-white/50'}`} />
+                ))}
+              </div>
+            </>
+          )}
+
           {product.highlight && (
             <div className="absolute top-2 left-2 bg-amber-400 text-amber-900 text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
               <Star className="w-3 h-3" /> Destaque

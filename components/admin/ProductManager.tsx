@@ -14,6 +14,7 @@ const emptyProduct = (): Omit<Product, 'id'> => ({
   price: 0,
   line: 'PET',
   imageUrl: '',
+  images: [],
   active: true,
   sortOrder: 9999,
   highlight: false,
@@ -45,7 +46,7 @@ export const ProductManager: React.FC = () => {
     const res = await uploadImageToGitHub(token, file);
     setUploading(false);
     if (res.success && res.url) {
-      setForm(f => ({ ...f, imageUrl: res.url! }));
+      setForm(f => ({ ...f, images: [...(f.images || []), res.url!] }));
     } else {
       setError(res.message || 'Erro ao fazer upload da imagem.');
     }
@@ -69,7 +70,8 @@ export const ProductManager: React.FC = () => {
   };
 
   const handleEdit = (p: Product) => {
-    setForm({ name: p.name, description: p.description, price: p.price, line: p.line, imageUrl: p.imageUrl, active: p.active, sortOrder: p.sortOrder, highlight: p.highlight, sizes: p.sizes || [] });
+    const imgs = p.images && p.images.length > 0 ? p.images : (p.imageUrl ? [p.imageUrl] : []);
+    setForm({ name: p.name, description: p.description, price: p.price, line: p.line, imageUrl: p.imageUrl, images: imgs, active: p.active, sortOrder: p.sortOrder, highlight: p.highlight, sizes: p.sizes || [] });
     setEditing(p);
     setIsNew(false);
     setError('');
@@ -80,11 +82,13 @@ export const ProductManager: React.FC = () => {
     if (!form.name.trim()) { setError('Informe o nome do produto.'); return; }
     setSaving(true);
     setError('');
+    const imgs = (form.images || []).filter(Boolean);
+    const finalForm = { ...form, images: imgs, imageUrl: imgs[0] || '' };
     try {
       if (isNew) {
-        await addProduct(form);
+        await addProduct(finalForm);
       } else if (editing) {
-        await updateProduct({ ...editing, ...form });
+        await updateProduct({ ...editing, ...finalForm });
       }
       await load();
       setIsNew(false);
@@ -231,18 +235,28 @@ export const ProductManager: React.FC = () => {
                   </select>
                 </div>
                 <div className="col-span-2">
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Imagem</label>
-                  <div className="flex gap-2 items-start">
-                    <input value={form.imageUrl} onChange={e => setForm({ ...form, imageUrl: e.target.value })}
-                      placeholder="https://... ou faça upload →" className="flex-1 rounded-lg border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-indigo-500 text-sm" />
-                    <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
-                    <Button type="button" size="sm" variant="outline" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
-                      {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-                    </Button>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">Imagens</label>
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {(form.images || []).map((url, i) => (
+                      <div key={i} className="relative w-20 h-20 flex-shrink-0">
+                        <img src={url} alt="" className="w-full h-full object-cover rounded-lg border border-slate-200" onError={e => (e.target as HTMLImageElement).style.display = 'none'} />
+                        {i === 0 && <span className="absolute top-0.5 left-0.5 bg-indigo-600 text-white text-[10px] px-1 rounded">principal</span>}
+                        <button type="button" onClick={() => setForm(f => ({ ...f, images: (f.images || []).filter((_, j) => j !== i) }))}
+                          className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center hover:bg-red-600">
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                    <div className="w-20 h-20 flex-shrink-0">
+                      <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                      <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploading}
+                        className="w-full h-full rounded-lg border-2 border-dashed border-slate-300 hover:border-indigo-400 flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-indigo-500 transition-colors">
+                        {uploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Upload className="w-5 h-5" />}
+                        <span className="text-[10px]">Upload</span>
+                      </button>
+                    </div>
                   </div>
-                  {form.imageUrl && (
-                    <img src={form.imageUrl} alt="preview" className="mt-2 h-20 w-20 object-cover rounded-lg border border-slate-200" onError={e => (e.target as HTMLImageElement).style.display = 'none'} />
-                  )}
+                  <p className="text-xs text-slate-400">A primeira imagem é a principal. Arraste para reordenar ou clique no ✕ para remover.</p>
                 </div>
                 <div className="flex items-center gap-4">
                   <label className="flex items-center gap-2 cursor-pointer text-sm">

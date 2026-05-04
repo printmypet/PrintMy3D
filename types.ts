@@ -107,6 +107,7 @@ export interface Product {
   line: ProductLine;
   categoryId?: string;
   imageUrl: string;
+  images?: string[];
   active: boolean;
   sortOrder?: number;
   highlight?: boolean;

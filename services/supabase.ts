@@ -246,6 +246,7 @@ export const fetchProducts = async (line?: string): Promise<Product[]> => {
     sortOrder: p.sort_order,
     highlight: p.highlight || false,
     sizes: p.sizes || [],
+    images: p.images || (p.image_url ? [p.image_url] : []),
   }));
 };
 
@@ -265,6 +266,7 @@ export const fetchAllProducts = async (): Promise<Product[]> => {
     sortOrder: p.sort_order,
     highlight: p.highlight || false,
     sizes: p.sizes || [],
+    images: p.images || (p.image_url ? [p.image_url] : []),
   }));
 };
 
@@ -281,6 +283,7 @@ export const addProduct = async (product: Omit<Product, 'id'>) => {
     sort_order: product.sortOrder || 9999,
     highlight: product.highlight || false,
     sizes: product.sizes && product.sizes.length > 0 ? product.sizes : null,
+    images: product.images && product.images.length > 0 ? product.images : null,
   };
   const { error } = await supabase.from('products').insert([payload]);
   if (error) throw error;
@@ -299,6 +302,7 @@ export const updateProduct = async (product: Product) => {
     sort_order: product.sortOrder || 9999,
     highlight: product.highlight || false,
     sizes: product.sizes && product.sizes.length > 0 ? product.sizes : null,
+    images: product.images && product.images.length > 0 ? product.images : null,
   };
   const { error } = await supabase.from('products').update(payload).eq('id', product.id);
   if (error) throw error;
