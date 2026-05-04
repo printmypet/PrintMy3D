@@ -1,0 +1,71 @@
+import React from 'react';
+import { HomeCustomization, ColorOption, DEFAULT_COLORS, DEFAULT_MATERIALS } from '../../types';
+
+interface HomeCustomizerProps {
+  value: HomeCustomization;
+  onChange: (v: HomeCustomization) => void;
+  colors?: ColorOption[];
+  materials?: string[];
+}
+
+export const HomeCustomizer: React.FC<HomeCustomizerProps> = ({
+  value,
+  onChange,
+  colors = DEFAULT_COLORS,
+  materials = DEFAULT_MATERIALS,
+}) => {
+  return (
+    <div className="space-y-5">
+      <div>
+        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Cor</p>
+        <div className="flex flex-wrap gap-2">
+          {colors.map(c => (
+            <button
+              key={c.hex}
+              type="button"
+              title={c.name}
+              onClick={() => onChange({ ...value, color: c })}
+              className={`w-8 h-8 rounded-full border-2 transition-all ${value.color.hex === c.hex ? 'border-indigo-500 scale-110 shadow-md' : 'border-slate-300 hover:scale-105'}`}
+              style={{ backgroundColor: c.hex }}
+            />
+          ))}
+        </div>
+        <p className="text-xs text-slate-400 mt-1">{value.color.name}</p>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-slate-700 mb-1">Material</label>
+        <select
+          value={value.material}
+          onChange={e => onChange({ ...value, material: e.target.value })}
+          className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-indigo-500"
+        >
+          <option value="">Selecione o material</option>
+          {materials.map(m => <option key={m} value={m}>{m}</option>)}
+        </select>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-slate-700 mb-1">Dimensões</label>
+        <input
+          type="text"
+          value={value.dimensions}
+          onChange={e => onChange({ ...value, dimensions: e.target.value })}
+          placeholder="Ex: 20cm x 10cm x 5cm"
+          className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-indigo-500"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-slate-700 mb-1">Observações</label>
+        <textarea
+          value={value.observations}
+          onChange={e => onChange({ ...value, observations: e.target.value })}
+          placeholder="Informações adicionais sobre o pedido..."
+          rows={3}
+          className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-indigo-500 resize-none"
+        />
+      </div>
+    </div>
+  );
+};

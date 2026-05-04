@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\binho\\\\Site\" -Force | Where-Object { $_.Name -match \"\\\\.zip$\" } | Select-Object FullName, Length, LastWriteTime)",
+      "Bash(npm install *)",
+      "Bash(npm run *)"
+    ]
+  }
+}
