@@ -41,7 +41,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterAdmin, isOnline
     if (banners.length <= 1) return;
     const interval = setInterval(() => setCurrentBanner(p => (p + 1) % banners.length), 5000);
     return () => clearInterval(interval);
-  }, [banners]);
+  }, [banners, currentBanner]);
 
   const handleAddToCart = (item: CartItem) => {
     setCartItems(prev => [...prev, item]);
@@ -137,24 +137,30 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterAdmin, isOnline
               </div>
             </div>
           ))}
+
           {banners.length > 1 && (
             <>
               <button onClick={() => setCurrentBanner(p => (p - 1 + banners.length) % banners.length)}
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white backdrop-blur-sm">
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white backdrop-blur-sm transition-colors">
                 <ChevronLeft className="w-5 h-5" />
               </button>
               <button onClick={() => setCurrentBanner(p => (p + 1) % banners.length)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white backdrop-blur-sm">
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white backdrop-blur-sm transition-colors">
                 <ChevronRight className="w-5 h-5" />
               </button>
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                {banners.map((_, i) => (
-                  <button key={i} onClick={() => setCurrentBanner(i)}
-                    className={`w-2 h-2 rounded-full transition-all ${i === currentBanner ? 'bg-white w-6' : 'bg-white/50'}`} />
-                ))}
-              </div>
             </>
           )}
+
+          {/* Dots sempre visíveis quando há banners */}
+          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2">
+            {banners.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrentBanner(i)}
+                className={`rounded-full transition-all duration-300 ${i === currentBanner ? 'bg-white w-6 h-2.5' : 'bg-white/50 w-2.5 h-2.5 hover:bg-white/80'}`}
+              />
+            ))}
+          </div>
         </div>
       ) : (
         <div className="bg-gradient-to-r from-slate-900 to-indigo-900 py-20 px-4 text-center">
