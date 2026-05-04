@@ -1,60 +1,94 @@
 import React, { useRef, useEffect } from 'react';
 import { PetCustomization, ColorOption, PartsColors, DEFAULT_COLORS, DEFAULT_TEXTURES } from '../../types';
 
-const drawTexturePattern = (ctx: CanvasRenderingContext2D, texture: string, w: number, h: number) => {
-  const t = texture.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
-  ctx.save();
+const hashName = (s: string): number => {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
+  return Math.abs(h);
+};
 
-  if (t.includes('madeira') || t.includes('wood')) {
-    ctx.strokeStyle = 'rgba(0,0,0,0.18)';
-    ctx.lineWidth = 1.5;
-    for (let y = 0; y < h; y += 7) {
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      for (let x = 0; x <= w; x += 3) {
-        ctx.lineTo(x, y + Math.sin(x * 0.18 + y * 0.05) * 2.5);
-      }
+const PATTERNS: ((ctx: CanvasRenderingContext2D, w: number, h: number) => void)[] = [
+  // 0 — linhas horizontais onduladas (madeira)
+  (ctx, w, h) => {
+    ctx.strokeStyle = 'rgba(0,0,0,0.2)'; ctx.lineWidth = 1.5;
+    for (let y = 4; y < h; y += 8) {
+      ctx.beginPath(); ctx.moveTo(0, y);
+      for (let x = 0; x <= w; x += 3) ctx.lineTo(x, y + Math.sin(x * 0.2 + y * 0.05) * 3);
       ctx.stroke();
     }
-  } else if (t.includes('malha') || t.includes('mesh') || t.includes('grade') || t.includes('trico')) {
-    ctx.strokeStyle = 'rgba(0,0,0,0.2)';
-    ctx.lineWidth = 1;
-    for (let x = 0; x < w; x += 9) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
-    for (let y = 0; y < h; y += 9) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
-  } else if (t.includes('couro') || t.includes('leather')) {
-    ctx.strokeStyle = 'rgba(0,0,0,0.15)';
-    ctx.lineWidth = 1;
+  },
+  // 1 — grade quadriculada
+  (ctx, w, h) => {
+    ctx.strokeStyle = 'rgba(0,0,0,0.22)'; ctx.lineWidth = 1;
+    for (let x = 0; x < w; x += 10) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+    for (let y = 0; y < h; y += 10) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+  },
+  // 2 — xadrez diagonal duplo (couro)
+  (ctx, w, h) => {
+    ctx.strokeStyle = 'rgba(0,0,0,0.18)'; ctx.lineWidth = 1;
     for (let i = -h; i < w + h; i += 10) {
       ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i + h, h); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(i + h, 0); ctx.lineTo(i, h); ctx.stroke();
     }
-  } else if (t.includes('pedra') || t.includes('stone') || t.includes('marble') || t.includes('marmore')) {
-    ctx.strokeStyle = 'rgba(0,0,0,0.12)';
-    ctx.lineWidth = 1.5;
-    for (let i = 0; i < 6; i++) {
-      ctx.beginPath();
-      ctx.moveTo(Math.random() * w, 0);
-      for (let x = 0; x <= w; x += 5) {
-        ctx.lineTo(x, (x / w) * h + Math.sin(x * 0.3 + i) * 20);
+  },
+  // 3 — bolinhas
+  (ctx, w, h) => {
+    ctx.fillStyle = 'rgba(0,0,0,0.2)';
+    for (let x = 6; x < w; x += 11) for (let y = 6; y < h; y += 11) {
+      ctx.beginPath(); ctx.arc(x, y, 2, 0, Math.PI * 2); ctx.fill();
+    }
+  },
+  // 4 — escamas (peixes/réptil)
+  (ctx, w, h) => {
+    ctx.strokeStyle = 'rgba(0,0,0,0.2)'; ctx.lineWidth = 1;
+    const r = 10;
+    for (let row = 0; row * r < h + r; row++) {
+      const offset = (row % 2) * r;
+      for (let col = -1; col * (r * 2) < w + r * 2; col++) {
+        const cx = col * r * 2 + offset;
+        const cy = row * r;
+        ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI); ctx.stroke();
       }
+    }
+  },
+  // 5 — zigue-zague horizontal
+  (ctx, w, h) => {
+    ctx.strokeStyle = 'rgba(0,0,0,0.2)'; ctx.lineWidth = 1.5;
+    const step = 10;
+    for (let y = step; y < h; y += step * 2) {
+      ctx.beginPath(); ctx.moveTo(0, y);
+      for (let x = 0; x <= w; x += step) ctx.lineTo(x, y + (x / step % 2 === 0 ? step : 0));
       ctx.stroke();
     }
-  } else if (t.includes('ponto') || t.includes('dot') || t.includes('bola')) {
-    ctx.fillStyle = 'rgba(0,0,0,0.15)';
-    for (let x = 6; x < w; x += 10) {
-      for (let y = 6; y < h; y += 10) {
-        ctx.beginPath(); ctx.arc(x, y, 1.5, 0, Math.PI * 2); ctx.fill();
-      }
+  },
+  // 6 — losangos (diamante)
+  (ctx, w, h) => {
+    ctx.strokeStyle = 'rgba(0,0,0,0.18)'; ctx.lineWidth = 1;
+    const s = 12;
+    for (let y = 0; y < h + s; y += s) for (let x = 0; x < w + s; x += s) {
+      ctx.beginPath();
+      ctx.moveTo(x, y - s / 2); ctx.lineTo(x + s / 2, y);
+      ctx.lineTo(x, y + s / 2); ctx.lineTo(x - s / 2, y);
+      ctx.closePath(); ctx.stroke();
     }
-  } else if (!t.includes('liso') && !t.includes('smooth') && t.trim() !== '') {
-    // Padrão genérico: linhas diagonais suaves
-    ctx.strokeStyle = 'rgba(0,0,0,0.12)';
-    ctx.lineWidth = 1;
-    for (let i = -h; i < w + h; i += 8) {
-      ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i + h, h); ctx.stroke();
+  },
+  // 7 — traços curtos aleatórios (rugoso)
+  (ctx, w, h) => {
+    ctx.strokeStyle = 'rgba(0,0,0,0.18)'; ctx.lineWidth = 1.5;
+    const rng = (seed: number) => { let s = seed; return () => { s = (s * 1664525 + 1013904223) & 0xffffffff; return (s >>> 0) / 0xffffffff; }; };
+    const rand = rng(42);
+    for (let i = 0; i < 80; i++) {
+      const x = rand() * w, y = rand() * h, a = rand() * Math.PI, l = 5 + rand() * 8;
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l); ctx.stroke();
     }
-  }
+  },
+];
 
+const drawTexturePattern = (ctx: CanvasRenderingContext2D, texture: string, w: number, h: number) => {
+  if (!texture.trim()) return;
+  const idx = hashName(texture) % PATTERNS.length;
+  ctx.save();
+  PATTERNS[idx](ctx, w, h);
   ctx.restore();
 };
 
