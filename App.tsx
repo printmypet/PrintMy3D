@@ -25,11 +25,9 @@ import {
   fetchTextures,
 } from './services/supabase';
 
-// --- CONFIGURAÇÃO FIXA DE PRODUÇÃO ---
-// Substitua pelos dados do seu projeto Supabase depois de criar as tabelas.
 const FIXED_CONFIG = {
-  url: '',
-  key: '',
+  url: import.meta.env.VITE_SUPABASE_URL || '',
+  key: import.meta.env.VITE_SUPABASE_KEY || '',
 };
 
 type AdminView = 'dashboard' | 'orders' | 'products' | 'banners' | 'settings';
