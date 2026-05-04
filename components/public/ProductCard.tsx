@@ -53,8 +53,8 @@ const initialCustomization = (product: Product): Customization => {
 };
 
 const PERSONALIZATION_PRICE = 9.90;
-const PERSONALIZED_PRODUCTS = ['LickBowl'];
-const COMEDOURO_PRODUCTS = ['COMEDOURO ELEVADO'];
+const PERSONALIZED_PRODUCTS = ['lickbowl'];
+const COMEDOURO_PRODUCTS = ['comedouro elevado'];
 
 // URLs das imagens das peças por produto — substitua após fazer upload no GitHub
 const PART_IMAGES: Record<string, { top?: string; ball?: string; base?: string }> = {
@@ -75,8 +75,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, partsColors, 
   const minPrice = hasSizes ? Math.min(...(product.sizes || []).map(s => s.price)) : product.price;
   const [selectedSize, setSelectedSize] = useState<typeof product.sizes[0] | null>(null);
 
-  const isPersonalizable = PERSONALIZED_PRODUCTS.includes(product.name);
-  const isComedouro = COMEDOURO_PRODUCTS.includes(product.name);
+  const isPersonalizable = PERSONALIZED_PRODUCTS.includes(product.name.toLowerCase().trim());
+  const isComedouro = COMEDOURO_PRODUCTS.includes(product.name.toLowerCase().trim());
 
   const handleAdd = () => {
     if (hasSizes && !selectedSize) {
