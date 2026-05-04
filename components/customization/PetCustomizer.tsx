@@ -56,9 +56,9 @@ export const PetCustomizer: React.FC<PetCustomizerProps> = ({ value, onChange, p
         </div>
       )}
 
+      <ColorPicker label="Cor da Tampa" colors={colors.top} selected={value.topColor} onSelect={c => onChange({ ...value, topColor: c })} />
+      <ColorPicker label="Cor da Bola" colors={colors.ball} selected={value.ballColor} onSelect={c => onChange({ ...value, ballColor: c })} />
       <ColorPicker label="Cor da Base" colors={colors.base} selected={value.baseColor} onSelect={c => onChange({ ...value, baseColor: c })} />
-      <ColorPicker label="Cor do Corpo (Bola)" colors={colors.ball} selected={value.ballColor} onSelect={c => onChange({ ...value, ballColor: c })} />
-      <ColorPicker label="Cor do Topo / Detalhe" colors={colors.top} selected={value.topColor} onSelect={c => onChange({ ...value, topColor: c })} />
 
       <div>
         <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Textura</p>
