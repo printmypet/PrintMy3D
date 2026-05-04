@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, Pencil, Trash2, Package, Star, Eye, EyeOff, Upload, Loader2 } from 'lucide-react';
-import { Product, ProductLine } from '../../types';
+import { Plus, Pencil, Trash2, Package, Star, Eye, EyeOff, Upload, Loader2, X } from 'lucide-react';
+import { Product, ProductLine, ProductSize } from '../../types';
 import { fetchAllProducts, addProduct, updateProduct, deleteProduct } from '../../services/supabase';
 import { uploadImageToGitHub } from '../../services/github';
 import { Button } from '../ui/Button';
@@ -17,6 +17,7 @@ const emptyProduct = (): Omit<Product, 'id'> => ({
   active: true,
   sortOrder: 9999,
   highlight: false,
+  sizes: [],
 });
 
 export const ProductManager: React.FC = () => {
@@ -68,7 +69,7 @@ export const ProductManager: React.FC = () => {
   };
 
   const handleEdit = (p: Product) => {
-    setForm({ name: p.name, description: p.description, price: p.price, line: p.line, imageUrl: p.imageUrl, active: p.active, sortOrder: p.sortOrder, highlight: p.highlight });
+    setForm({ name: p.name, description: p.description, price: p.price, line: p.line, imageUrl: p.imageUrl, active: p.active, sortOrder: p.sortOrder, highlight: p.highlight, sizes: p.sizes || [] });
     setEditing(p);
     setIsNew(false);
     setError('');
@@ -183,9 +184,44 @@ export const ProductManager: React.FC = () => {
                     className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-indigo-500 text-sm resize-none" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Preço (R$) <span className="text-red-500">*</span></label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Preço base (R$) <span className="text-red-500">*</span>
+                    <span className="text-xs font-normal text-slate-400 ml-1">— usado quando não há tamanhos</span>
+                  </label>
                   <input type="number" min="0" step="0.01" value={form.price} onChange={e => setForm({ ...form, price: parseFloat(e.target.value) || 0 })}
                     className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-indigo-500 text-sm" />
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium text-slate-700 mb-2">Tamanhos (opcional, máx. 3)</label>
+                  <div className="space-y-2">
+                    {(form.sizes || []).map((size, i) => (
+                      <div key={i} className="flex gap-2 items-center">
+                        <input
+                          value={size.name}
+                          onChange={e => { const s = [...(form.sizes || [])]; s[i] = { ...s[i], name: e.target.value }; setForm({ ...form, sizes: s }); }}
+                          placeholder="Ex: Pequeno, Médio, Grande"
+                          className="flex-1 rounded-lg border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-indigo-500 text-sm"
+                        />
+                        <input
+                          type="number" min="0" step="0.01" value={size.price}
+                          onChange={e => { const s = [...(form.sizes || [])]; s[i] = { ...s[i], price: parseFloat(e.target.value) || 0 }; setForm({ ...form, sizes: s }); }}
+                          placeholder="Preço"
+                          className="w-28 rounded-lg border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-indigo-500 text-sm"
+                        />
+                        <button type="button" onClick={() => setForm({ ...form, sizes: (form.sizes || []).filter((_, j) => j !== i) })}
+                          className="text-red-400 hover:text-red-600">
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                    {(form.sizes || []).length < 3 && (
+                      <button type="button"
+                        onClick={() => setForm({ ...form, sizes: [...(form.sizes || []), { name: '', price: 0 }] })}
+                        className="flex items-center gap-1.5 text-sm text-indigo-600 hover:text-indigo-800">
+                        <Plus className="w-4 h-4" /> Adicionar tamanho
+                      </button>
+                    )}
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Linha <span className="text-red-500">*</span></label>

@@ -94,6 +94,11 @@ export interface CartItem {
 
 // --- Catalog ---
 
+export interface ProductSize {
+  name: string;
+  price: number;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -105,6 +110,7 @@ export interface Product {
   active: boolean;
   sortOrder?: number;
   highlight?: boolean;
+  sizes?: ProductSize[];
 }
 
 export interface Category {

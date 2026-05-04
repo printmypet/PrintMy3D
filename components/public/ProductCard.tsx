@@ -70,9 +70,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, partsColors, 
   const [wantsPersonalization, setWantsPersonalization] = useState(false);
   const [personalizationPetName, setPersonalizationPetName] = useState('');
 
+  const hasSizes = (product.sizes || []).length > 0;
+  const minPrice = hasSizes ? Math.min(...(product.sizes || []).map(s => s.price)) : product.price;
+  const [selectedSize, setSelectedSize] = useState<typeof product.sizes[0] | null>(null);
+
   const isPersonalizable = PERSONALIZED_PRODUCTS.includes(product.name);
 
   const handleAdd = () => {
+    if (hasSizes && !selectedSize) {
+      alert('Por favor, selecione um tamanho.');
+      return;
+    }
     if (product.line === 'PET' && !isPersonalizable && !(customization as PetCustomization).petName.trim()) {
       alert('Por favor, informe o nome do pet.');
       return;
@@ -81,15 +89,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, partsColors, 
       alert('Por favor, informe o nome do pet.');
       return;
     }
-    const finalPrice = isPersonalizable && wantsPersonalization
-      ? product.price + PERSONALIZATION_PRICE
-      : product.price;
-    const finalCustomization: Customization = isPersonalizable && wantsPersonalization
-      ? { ...customization, observations: `Nome do pet: ${personalizationPetName.trim()}` } as any
+    const basePrice = hasSizes && selectedSize ? selectedSize.price : product.price;
+    const finalPrice = isPersonalizable && wantsPersonalization ? basePrice + PERSONALIZATION_PRICE : basePrice;
+    const sizeNote = hasSizes && selectedSize ? `Tamanho: ${selectedSize.name}` : '';
+    const personalizationNote = isPersonalizable && wantsPersonalization ? `Nome do pet: ${personalizationPetName.trim()}` : '';
+    const observations = [sizeNote, personalizationNote].filter(Boolean).join(' | ');
+    const finalCustomization: Customization = observations
+      ? { ...customization, observations } as any
       : customization;
+    const finalProduct = { ...product, price: finalPrice, name: hasSizes && selectedSize ? `${product.name} (${selectedSize.name})` : product.name };
     const item: CartItem = {
       id: uuidv4(),
-      product: { ...product, price: finalPrice },
+      product: finalProduct,
       customization: finalCustomization,
       quantity: 1,
     };
@@ -98,6 +109,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, partsColors, 
     setCustomization(initialCustomization(product));
     setWantsPersonalization(false);
     setPersonalizationPetName('');
+    setSelectedSize(null);
   };
 
   const resolveImage = (url: string) => {
@@ -135,7 +147,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, partsColors, 
           {product.description && <p className="text-sm text-slate-500 line-clamp-2 mb-3 flex-1">{product.description}</p>}
           <div className="flex items-center justify-between mt-auto pt-3 border-t border-slate-100">
             <span className="text-lg font-bold text-slate-900">
-              {product.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+              {hasSizes && <span className="text-xs font-normal text-slate-400 mr-1">a partir de</span>}
+              {minPrice.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
             </span>
             <Button size="sm" onClick={() => setShowModal(true)}>
               <ShoppingCart className="w-4 h-4 mr-1.5" />
@@ -159,6 +172,24 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, partsColors, 
             </div>
 
             <div className="p-5 space-y-4">
+              {hasSizes && (
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Tamanho <span className="text-red-500">*</span></p>
+                  <div className="flex flex-wrap gap-2">
+                    {(product.sizes || []).map(size => (
+                      <button
+                        key={size.name}
+                        type="button"
+                        onClick={() => setSelectedSize(size)}
+                        className={`px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all ${selectedSize?.name === size.name ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-slate-200 text-slate-700 hover:border-slate-300'}`}
+                      >
+                        {size.name}
+                        <span className="ml-2 text-xs opacity-70">{size.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
               {product.line === 'PET' && (
                 <PetCustomizer
                   value={customization as PetCustomization}
