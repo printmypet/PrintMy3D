@@ -1,5 +1,31 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { PetCustomization, ColorOption, PartsColors, DEFAULT_COLORS, DEFAULT_TEXTURES } from '../../types';
+
+const PartImage: React.FC<{ imageUrl: string; color: string }> = ({ imageUrl, color }) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+      ctx.globalCompositeOperation = 'source-in';
+      ctx.fillStyle = color;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.globalCompositeOperation = 'source-over';
+    };
+    img.src = imageUrl;
+  }, [imageUrl, color]);
+
+  return <canvas ref={canvasRef} className="w-full h-full object-contain" />;
+};
 
 interface PetCustomizerProps {
   value: PetCustomization;
@@ -21,12 +47,8 @@ const ColorPicker: React.FC<{
     <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">{label}</p>
     <div className="flex items-center gap-4">
       {imageUrl && (
-        <div className="relative w-20 h-20 rounded-xl overflow-hidden border border-slate-200 flex-shrink-0 bg-slate-50">
-          <img src={imageUrl} alt={label} className="w-full h-full object-contain" />
-          <div
-            className="absolute inset-0"
-            style={{ backgroundColor: selected.hex, mixBlendMode: 'multiply', opacity: 0.85 }}
-          />
+        <div className="w-20 h-20 rounded-xl overflow-hidden border border-slate-200 flex-shrink-0">
+          <PartImage imageUrl={imageUrl} color={selected.hex} />
         </div>
       )}
       <div className="flex-1">
