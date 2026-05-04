@@ -15,11 +15,15 @@ const PartImage: React.FC<{ imageUrl: string; color: string }> = ({ imageUrl, co
       canvas.width = img.width;
       canvas.height = img.height;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // Draw original image preserving all shape details
       ctx.drawImage(img, 0, 0);
-      ctx.globalCompositeOperation = 'source-in';
+      // Apply color tint only on non-transparent pixels, keeping original details visible
+      ctx.globalCompositeOperation = 'source-atop';
+      ctx.globalAlpha = 0.65;
       ctx.fillStyle = color;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.globalCompositeOperation = 'source-over';
+      ctx.globalAlpha = 1;
     };
     img.src = imageUrl;
   }, [imageUrl, color]);
