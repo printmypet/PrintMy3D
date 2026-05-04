@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, LogIn, ShoppingCart, Search, PawPrint, Home, User } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LogIn, ShoppingCart, Search, PawPrint, Home, User, Package } from 'lucide-react';
 import { Banner, Product, CartItem, PartsColors, ProductLine } from '../../types';
 import { fetchBanners, fetchProducts } from '../../services/supabase';
 import { Button } from '../ui/Button';
@@ -207,19 +207,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterAdmin, isOnline
           const meta = LINE_META[line];
           const Icon = meta.icon;
           const lineProducts = filteredProducts.filter(p => p.line === line);
-          if (lineProducts.length === 0 && activeLine !== 'all') {
-            return (
-              <div key={line} className="text-center py-16 text-slate-400">
-                <Package className="w-12 h-12 mx-auto mb-3" />
-                <p className="font-medium">Nenhum produto encontrado</p>
-              </div>
-            );
-          }
-          if (lineProducts.length === 0) return null;
+          if (lineProducts.length === 0 && activeLine === 'all') return null;
           return (
             <section key={line} className="mb-14">
               <div className={`flex items-center gap-3 mb-6 p-4 rounded-2xl border ${meta.bg}`}>
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-white shadow-sm`}>
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-white shadow-sm">
                   <Icon className={`w-5 h-5 ${meta.color}`} />
                 </div>
                 <div>
@@ -227,17 +219,25 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterAdmin, isOnline
                   <p className={`text-sm ${meta.color}`}>{meta.label}</p>
                 </div>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {lineProducts.map(product => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    partsColors={partsColors}
-                    availableTextures={availableTextures}
-                    onAddToCart={handleAddToCart}
-                  />
-                ))}
-              </div>
+              {lineProducts.length === 0 ? (
+                <div className={`flex flex-col items-center justify-center py-20 rounded-2xl border-2 border-dashed ${meta.bg}`}>
+                  <Package className={`w-12 h-12 mb-3 ${meta.color} opacity-40`} />
+                  <p className={`font-medium ${meta.color} opacity-60`}>Nenhum produto cadastrado ainda</p>
+                  <p className="text-sm text-slate-400 mt-1">Em breve novidades por aqui!</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {lineProducts.map(product => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      partsColors={partsColors}
+                      availableTextures={availableTextures}
+                      onAddToCart={handleAddToCart}
+                    />
+                  ))}
+                </div>
+              )}
             </section>
           );
         })}
