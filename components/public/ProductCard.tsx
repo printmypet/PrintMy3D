@@ -55,6 +55,7 @@ const initialCustomization = (product: Product): Customization => {
 const PERSONALIZATION_PRICE = 9.90;
 const PERSONALIZED_PRODUCTS = ['lickbowl'];
 const COMEDOURO_PRODUCTS = ['comedouro elevado'];
+const SINGLE_COLOR_PRODUCTS = ['colher para ração', 'colher para petiscos (churu)'];
 
 // URLs das imagens das peças por produto — substitua após fazer upload no GitHub
 const PART_IMAGES: Record<string, { top?: string; ball?: string; base?: string }> = {
@@ -82,13 +83,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, partsColors, 
 
   const isPersonalizable = PERSONALIZED_PRODUCTS.includes(product.name.toLowerCase().trim());
   const isComedouro = COMEDOURO_PRODUCTS.includes(product.name.toLowerCase().trim());
+  const isSingleColor = SINGLE_COLOR_PRODUCTS.includes(product.name.toLowerCase().trim());
 
   const handleAdd = () => {
     if (hasSizes && !selectedSize) {
       alert('Por favor, selecione um tamanho.');
       return;
     }
-    if (product.line === 'PET' && !isPersonalizable && !(customization as PetCustomization).petName.trim()) {
+    if (product.line === 'PET' && !isPersonalizable && !isSingleColor && !(customization as PetCustomization).petName.trim()) {
       alert('Por favor, informe o nome do pet.');
       return;
     }
@@ -226,6 +228,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, partsColors, 
                   hidePetName={isPersonalizable}
                   partImages={PART_IMAGES[product.name]}
                   comedouroMode={isComedouro}
+                  singleColorMode={isSingleColor}
                 />
               )}
               {product.line === 'HOME' && (
