@@ -246,6 +246,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, partsColors, 
                 <SelfCustomizer
                   value={customization as SelfCustomization}
                   onChange={v => setCustomization(v)}
+                  hideCustomText={hasTeamName}
                 />
               )}
               {hasTeamName && (

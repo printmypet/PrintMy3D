@@ -5,12 +5,14 @@ interface SelfCustomizerProps {
   value: SelfCustomization;
   onChange: (v: SelfCustomization) => void;
   colors?: ColorOption[];
+  hideCustomText?: boolean;
 }
 
 export const SelfCustomizer: React.FC<SelfCustomizerProps> = ({
   value,
   onChange,
   colors = DEFAULT_COLORS,
+  hideCustomText = false,
 }) => {
   return (
     <div className="space-y-5">
@@ -31,16 +33,18 @@ export const SelfCustomizer: React.FC<SelfCustomizerProps> = ({
         <p className="text-xs text-slate-400 mt-1">{value.color.name}</p>
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">Texto Personalizado</label>
-        <input
-          type="text"
-          value={value.customText}
-          onChange={e => onChange({ ...value, customText: e.target.value })}
-          placeholder="Ex: João Silva, Happy Birthday, 2024..."
-          className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-indigo-500"
-        />
-      </div>
+      {!hideCustomText && (
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Texto Personalizado</label>
+          <input
+            type="text"
+            value={value.customText}
+            onChange={e => onChange({ ...value, customText: e.target.value })}
+            placeholder="Ex: João Silva, Happy Birthday, 2024..."
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-indigo-500"
+          />
+        </div>
+      )}
 
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-1">Observações</label>
