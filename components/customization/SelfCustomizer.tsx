@@ -1,18 +1,16 @@
 import React from 'react';
-import { SelfCustomization, ColorOption, DEFAULT_COLORS, DEFAULT_MATERIALS } from '../../types';
+import { SelfCustomization, ColorOption, DEFAULT_COLORS } from '../../types';
 
 interface SelfCustomizerProps {
   value: SelfCustomization;
   onChange: (v: SelfCustomization) => void;
   colors?: ColorOption[];
-  materials?: string[];
 }
 
 export const SelfCustomizer: React.FC<SelfCustomizerProps> = ({
   value,
   onChange,
   colors = DEFAULT_COLORS,
-  materials = DEFAULT_MATERIALS,
 }) => {
   return (
     <div className="space-y-5">
@@ -31,18 +29,6 @@ export const SelfCustomizer: React.FC<SelfCustomizerProps> = ({
           ))}
         </div>
         <p className="text-xs text-slate-400 mt-1">{value.color.name}</p>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">Material</label>
-        <select
-          value={value.material}
-          onChange={e => onChange({ ...value, material: e.target.value })}
-          className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-indigo-500"
-        >
-          <option value="">Selecione o material</option>
-          {materials.map(m => <option key={m} value={m}>{m}</option>)}
-        </select>
       </div>
 
       <div>
