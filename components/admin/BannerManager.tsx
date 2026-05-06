@@ -45,7 +45,7 @@ export const BannerManager: React.FC = () => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (banners.length >= MAX_BANNERS) { setError(`Limite de ${MAX_BANNERS} banners atingido.`); return; }
-    const token = localStorage.getItem('app-github-token');
+    const token = localStorage.getItem('app-github-token') || import.meta.env.VITE_GITHUB_TOKEN || '';
     if (!token) { setError('Token GitHub não configurado. Vá em Configurações → Nuvem.'); return; }
     setUploading(true);
     setError('');

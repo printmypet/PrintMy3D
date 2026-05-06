@@ -36,7 +36,7 @@ export const ProductManager: React.FC = () => {
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const token = localStorage.getItem('app-github-token');
+    const token = localStorage.getItem('app-github-token') || import.meta.env.VITE_GITHUB_TOKEN || '';
     if (!token) {
       setError('Token GitHub não configurado. Vá em Configurações → Nuvem e adicione seu token.');
       return;
