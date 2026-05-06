@@ -56,6 +56,7 @@ const PERSONALIZATION_PRICE = 9.90;
 const PERSONALIZED_PRODUCTS = ['lickbowl'];
 const COMEDOURO_PRODUCTS = ['comedouro elevado'];
 const SINGLE_COLOR_PRODUCTS = ['colher para ração', 'colher para petiscos (churu)'];
+const TEAM_NAME_PRODUCTS = ['porta-latas copa do mundo'];
 
 // URLs das imagens das peças por produto — substitua após fazer upload no GitHub
 const PART_IMAGES: Record<string, { top?: string; ball?: string; base?: string }> = {
@@ -71,6 +72,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, partsColors, 
   const [customization, setCustomization] = useState<Customization>(() => initialCustomization(product));
   const [wantsPersonalization, setWantsPersonalization] = useState(false);
   const [personalizationPetName, setPersonalizationPetName] = useState('');
+  const [teamName, setTeamName] = useState('');
 
   const hasSizes = (product.sizes || []).length > 0;
   const minPrice = hasSizes ? Math.min(...(product.sizes || []).map(s => s.price)) : product.price;
@@ -84,6 +86,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, partsColors, 
   const isPersonalizable = PERSONALIZED_PRODUCTS.includes(product.name.toLowerCase().trim());
   const isComedouro = COMEDOURO_PRODUCTS.includes(product.name.toLowerCase().trim());
   const isSingleColor = SINGLE_COLOR_PRODUCTS.includes(product.name.toLowerCase().trim());
+  const hasTeamName = TEAM_NAME_PRODUCTS.includes(product.name.toLowerCase().trim());
 
   const handleAdd = () => {
     if (hasSizes && !selectedSize) {
@@ -102,7 +105,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, partsColors, 
     const finalPrice = isPersonalizable && wantsPersonalization ? basePrice + PERSONALIZATION_PRICE : basePrice;
     const sizeNote = hasSizes && selectedSize ? `Tamanho: ${selectedSize.name}` : '';
     const personalizationNote = isPersonalizable && wantsPersonalization ? `Nome do pet: ${personalizationPetName.trim()}` : '';
-    const observations = [sizeNote, personalizationNote].filter(Boolean).join(' | ');
+    const teamNote = hasTeamName && teamName.trim() ? `Time: ${teamName.trim()}` : '';
+    const observations = [sizeNote, personalizationNote, teamNote].filter(Boolean).join(' | ');
     const finalCustomization: Customization = observations
       ? { ...customization, observations } as any
       : customization;
@@ -118,6 +122,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, partsColors, 
     setCustomization(initialCustomization(product));
     setWantsPersonalization(false);
     setPersonalizationPetName('');
+    setTeamName('');
     setSelectedSize(null);
   };
 
@@ -242,6 +247,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, partsColors, 
                   value={customization as SelfCustomization}
                   onChange={v => setCustomization(v)}
                 />
+              )}
+              {hasTeamName && (
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Time</label>
+                  <input
+                    type="text"
+                    value={teamName}
+                    onChange={e => setTeamName(e.target.value)}
+                    placeholder="Ex: Flamengo, Corinthians, Brasil..."
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
               )}
               {isPersonalizable && (
                 <div className="space-y-3 pt-2 border-t border-slate-100">
