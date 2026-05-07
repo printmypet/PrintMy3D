@@ -131,7 +131,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterAdmin, isOnline
               <img src={resolveImage(banner.imageUrl)} alt="Banner" className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent flex items-center">
                 <div className="px-12 max-w-xl">
-                  <Logo size="xl" className="mb-4 block" />
+                  <div className="inline-block bg-white/85 backdrop-blur-sm rounded-2xl px-5 py-3 mb-4">
+                    <Logo size="xl" className="block" />
+                  </div>
                   <p className="text-white/80 text-lg">Produtos personalizados em impressão 3D</p>
                 </div>
               </div>
