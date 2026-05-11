@@ -151,7 +151,11 @@ export const ProductManager: React.FC = () => {
                   <Logo line={p.line} size="sm" className="text-xs" />
                   {p.highlight && <Star className="w-3.5 h-3.5 text-amber-500" />}
                 </div>
-                <p className="text-xs text-slate-500 mt-0.5">{p.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  {p.sizes && p.sizes.length > 0
+                    ? p.sizes.map(s => `${s.name}: ${s.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`).join(' · ')
+                    : p.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                </p>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
                 <button onClick={() => handleToggleActive(p)} title={p.active ? 'Desativar' : 'Ativar'} className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-500">
