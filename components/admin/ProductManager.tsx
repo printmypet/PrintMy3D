@@ -19,6 +19,7 @@ const emptyProduct = (): Omit<Product, 'id'> => ({
   sortOrder: 9999,
   highlight: false,
   sizes: [],
+  maxColors: 1,
 });
 
 export const ProductManager: React.FC = () => {
@@ -71,7 +72,7 @@ export const ProductManager: React.FC = () => {
 
   const handleEdit = (p: Product) => {
     const imgs = p.images && p.images.length > 0 ? p.images : (p.imageUrl ? [p.imageUrl] : []);
-    setForm({ name: p.name, description: p.description, price: p.price, line: p.line, imageUrl: p.imageUrl, images: imgs, active: p.active, sortOrder: p.sortOrder, highlight: p.highlight, sizes: p.sizes || [] });
+    setForm({ name: p.name, description: p.description, price: p.price, line: p.line, imageUrl: p.imageUrl, images: imgs, active: p.active, sortOrder: p.sortOrder, highlight: p.highlight, sizes: p.sizes || [], maxColors: p.maxColors ?? 1 });
     setEditing(p);
     setIsNew(false);
     setError('');
@@ -170,12 +171,12 @@ export const ProductManager: React.FC = () => {
 
       {(isNew || editing) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg">
-            <div className="p-5 border-b border-slate-200 flex items-center justify-between">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col">
+            <div className="p-5 border-b border-slate-200 flex items-center justify-between flex-shrink-0">
               <h3 className="font-semibold text-slate-900">{isNew ? 'Novo Produto' : 'Editar Produto'}</h3>
               <button onClick={() => { setIsNew(false); setEditing(null); }} className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-500">✕</button>
             </div>
-            <form onSubmit={handleSave} className="p-5 space-y-4">
+            <form onSubmit={handleSave} className="p-5 space-y-4 overflow-y-auto flex-1">
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2">
                   <label className="block text-sm font-medium text-slate-700 mb-1">Nome <span className="text-red-500">*</span></label>
@@ -233,6 +234,21 @@ export const ProductManager: React.FC = () => {
                     className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-indigo-500 text-sm">
                     {LINES.map(l => <option key={l} value={l}>{l}</option>)}
                   </select>
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Qtd. de cores que o cliente pode escolher</label>
+                  <div className="flex gap-2 mt-1">
+                    {[1, 2, 3].map(n => (
+                      <button
+                        key={n}
+                        type="button"
+                        onClick={() => setForm({ ...form, maxColors: n })}
+                        className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-colors ${(form.maxColors ?? 1) === n ? 'bg-indigo-600 text-white border-indigo-600' : 'border-slate-300 text-slate-600 hover:border-indigo-400'}`}
+                      >
+                        {n} {n === 1 ? 'cor' : 'cores'}
+                      </button>
+                    ))}
+                  </div>
                 </div>
                 <div className="col-span-2">
                   <label className="block text-sm font-medium text-slate-700 mb-2">Imagens</label>

@@ -112,6 +112,7 @@ export interface Product {
   sortOrder?: number;
   highlight?: boolean;
   sizes?: ProductSize[];
+  maxColors?: number;
 }
 
 export interface Category {
