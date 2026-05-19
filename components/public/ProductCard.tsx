@@ -58,6 +58,10 @@ const COMEDOURO_PRODUCTS = ['comedouro elevado'];
 const SINGLE_COLOR_PRODUCTS = ['colher para ração', 'colher para petiscos (churu)'];
 const TEAM_NAME_PRODUCTS = ['porta-latas copa do mundo'];
 
+const COLOR_LABELS: Record<string, { top?: string; ball?: string; base?: string }> = {
+  'spin&treat': { top: 'Cor das Hastes', ball: 'Cor do Suporte', base: 'Cor do Pote' },
+};
+
 // URLs das imagens das peças por produto — substitua após fazer upload no GitHub
 const PART_IMAGES: Record<string, { top?: string; ball?: string; base?: string }> = {
   LickBowl: {
@@ -232,6 +236,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, partsColors, 
                   availableTextures={availableTextures}
                   hidePetName={isPersonalizable}
                   partImages={PART_IMAGES[product.name]}
+                  colorLabels={COLOR_LABELS[product.name.toLowerCase().trim()]}
                   comedouroMode={isComedouro}
                   singleColorMode={isSingleColor}
                 />

@@ -134,6 +134,7 @@ interface PetCustomizerProps {
   availableTextures: string[];
   hidePetName?: boolean;
   partImages?: { top?: string; ball?: string; base?: string };
+  colorLabels?: { top?: string; ball?: string; base?: string };
   comedouroMode?: boolean;
   singleColorMode?: boolean;
 }
@@ -173,7 +174,7 @@ const ColorPicker: React.FC<{
   </div>
 );
 
-export const PetCustomizer: React.FC<PetCustomizerProps> = ({ value, onChange, partsColors, availableTextures, hidePetName = false, partImages, comedouroMode = false, singleColorMode = false }) => {
+export const PetCustomizer: React.FC<PetCustomizerProps> = ({ value, onChange, partsColors, availableTextures, hidePetName = false, partImages, colorLabels, comedouroMode = false, singleColorMode = false }) => {
   const [comedouroColorCount, setComedouroColorCount] = useState<'single' | 'double'>('single');
 
   const colors = {
@@ -274,9 +275,9 @@ export const PetCustomizer: React.FC<PetCustomizerProps> = ({ value, onChange, p
         </div>
       )}
 
-      <ColorPicker label="Cor da Tampa" colors={colors.top} selected={value.topColor} onSelect={c => onChange({ ...value, topColor: c })} imageUrl={partImages?.top} texture={value.textureValue || undefined} />
-      <ColorPicker label="Cor da Bola" colors={colors.ball} selected={value.ballColor} onSelect={c => onChange({ ...value, ballColor: c })} imageUrl={partImages?.ball} />
-      <ColorPicker label="Cor da Base" colors={colors.base} selected={value.baseColor} onSelect={c => onChange({ ...value, baseColor: c })} imageUrl={partImages?.base} />
+      <ColorPicker label={colorLabels?.top ?? "Cor da Tampa"} colors={colors.top} selected={value.topColor} onSelect={c => onChange({ ...value, topColor: c })} imageUrl={partImages?.top} texture={value.textureValue || undefined} />
+      <ColorPicker label={colorLabels?.ball ?? "Cor da Bola"} colors={colors.ball} selected={value.ballColor} onSelect={c => onChange({ ...value, ballColor: c })} imageUrl={partImages?.ball} />
+      <ColorPicker label={colorLabels?.base ?? "Cor da Base"} colors={colors.base} selected={value.baseColor} onSelect={c => onChange({ ...value, baseColor: c })} imageUrl={partImages?.base} />
 
       <div>
         <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Textura</p>
