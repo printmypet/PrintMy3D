@@ -57,7 +57,7 @@ const PERSONALIZED_PRODUCTS = ['lickbowl'];
 const COMEDOURO_PRODUCTS = ['comedouro elevado'];
 const SINGLE_COLOR_PRODUCTS = ['colher para ração', 'colher para petiscos (churu)'];
 const TEAM_NAME_PRODUCTS = ['porta-latas copa do mundo'];
-const HIDE_TEXTURE_PRODUCTS = ['spin&treat'];
+const HIDE_TEXTURE_PRODUCTS = ['spin&treat', 'mega brain'];
 
 const COLOR_LABELS: Record<string, { top?: string; ball?: string; base?: string }> = {
   'spin&treat': { top: 'Cor das Hastes', ball: 'Cor do Suporte', base: 'Cor do Pote' },
