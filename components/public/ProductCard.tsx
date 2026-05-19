@@ -61,6 +61,7 @@ const HIDE_TEXTURE_PRODUCTS = ['spin&treat'];
 
 const COLOR_LABELS: Record<string, { top?: string; ball?: string; base?: string }> = {
   'spin&treat': { top: 'Cor das Hastes', ball: 'Cor do Suporte', base: 'Cor do Pote' },
+  'mega brain': { top: 'Cor da Base', ball: 'Cor das Tampas', base: 'Cor dos Potes' },
 };
 
 // URLs das imagens das peças por produto — substitua após fazer upload no GitHub
