@@ -135,6 +135,7 @@ interface PetCustomizerProps {
   hidePetName?: boolean;
   partImages?: { top?: string; ball?: string; base?: string };
   colorLabels?: { top?: string; ball?: string; base?: string };
+  hideTexture?: boolean;
   comedouroMode?: boolean;
   singleColorMode?: boolean;
 }
@@ -174,7 +175,7 @@ const ColorPicker: React.FC<{
   </div>
 );
 
-export const PetCustomizer: React.FC<PetCustomizerProps> = ({ value, onChange, partsColors, availableTextures, hidePetName = false, partImages, colorLabels, comedouroMode = false, singleColorMode = false }) => {
+export const PetCustomizer: React.FC<PetCustomizerProps> = ({ value, onChange, partsColors, availableTextures, hidePetName = false, partImages, colorLabels, hideTexture = false, comedouroMode = false, singleColorMode = false }) => {
   const [comedouroColorCount, setComedouroColorCount] = useState<'single' | 'double'>('single');
 
   const colors = {
@@ -279,7 +280,7 @@ export const PetCustomizer: React.FC<PetCustomizerProps> = ({ value, onChange, p
       <ColorPicker label={colorLabels?.ball ?? "Cor da Bola"} colors={colors.ball} selected={value.ballColor} onSelect={c => onChange({ ...value, ballColor: c })} imageUrl={partImages?.ball} />
       <ColorPicker label={colorLabels?.base ?? "Cor da Base"} colors={colors.base} selected={value.baseColor} onSelect={c => onChange({ ...value, baseColor: c })} imageUrl={partImages?.base} />
 
-      <div>
+      {!hideTexture && <div>
         <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Textura</p>
         <div className="flex gap-3 mb-3">
           {['cadastrada', 'personalizada'].map(t => (
@@ -315,7 +316,7 @@ export const PetCustomizer: React.FC<PetCustomizerProps> = ({ value, onChange, p
             className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-indigo-500"
           />
         )}
-      </div>
+      </div>}
 
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-1">Observações</label>

@@ -57,6 +57,7 @@ const PERSONALIZED_PRODUCTS = ['lickbowl'];
 const COMEDOURO_PRODUCTS = ['comedouro elevado'];
 const SINGLE_COLOR_PRODUCTS = ['colher para ração', 'colher para petiscos (churu)'];
 const TEAM_NAME_PRODUCTS = ['porta-latas copa do mundo'];
+const HIDE_TEXTURE_PRODUCTS = ['spin&treat'];
 
 const COLOR_LABELS: Record<string, { top?: string; ball?: string; base?: string }> = {
   'spin&treat': { top: 'Cor das Hastes', ball: 'Cor do Suporte', base: 'Cor do Pote' },
@@ -90,6 +91,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, partsColors, 
   const isPersonalizable = PERSONALIZED_PRODUCTS.includes(product.name.toLowerCase().trim());
   const isComedouro = COMEDOURO_PRODUCTS.includes(product.name.toLowerCase().trim());
   const isSingleColor = SINGLE_COLOR_PRODUCTS.includes(product.name.toLowerCase().trim());
+  const isHideTexture = HIDE_TEXTURE_PRODUCTS.includes(product.name.toLowerCase().trim());
   const hasTeamName = TEAM_NAME_PRODUCTS.includes(product.name.toLowerCase().trim());
 
   const handleAdd = () => {
@@ -237,6 +239,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, partsColors, 
                   hidePetName={isPersonalizable}
                   partImages={PART_IMAGES[product.name]}
                   colorLabels={COLOR_LABELS[product.name.toLowerCase().trim()]}
+                  hideTexture={isHideTexture}
                   comedouroMode={isComedouro}
                   singleColorMode={isSingleColor}
                 />
