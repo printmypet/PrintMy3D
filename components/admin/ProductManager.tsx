@@ -19,7 +19,9 @@ const emptyProduct = (): Omit<Product, 'id'> => ({
   sortOrder: 9999,
   highlight: false,
   sizes: [],
-  maxColors: 1,
+  maxColors: 3,
+  hideTexture: false,
+  hidePetName: false,
 });
 
 export const ProductManager: React.FC = () => {
@@ -72,7 +74,7 @@ export const ProductManager: React.FC = () => {
 
   const handleEdit = (p: Product) => {
     const imgs = p.images && p.images.length > 0 ? p.images : (p.imageUrl ? [p.imageUrl] : []);
-    setForm({ name: p.name, description: p.description, price: p.price, line: p.line, imageUrl: p.imageUrl, images: imgs, active: p.active, sortOrder: p.sortOrder, highlight: p.highlight, sizes: p.sizes || [], maxColors: p.maxColors ?? 1 });
+    setForm({ name: p.name, description: p.description, price: p.price, line: p.line, imageUrl: p.imageUrl, images: imgs, active: p.active, sortOrder: p.sortOrder, highlight: p.highlight, sizes: p.sizes || [], maxColors: p.maxColors ?? 3, hideTexture: p.hideTexture ?? false, hidePetName: p.hidePetName ?? false });
     setEditing(p);
     setIsNew(false);
     setError('');
@@ -239,21 +241,36 @@ export const ProductManager: React.FC = () => {
                     {LINES.map(l => <option key={l} value={l}>{l}</option>)}
                   </select>
                 </div>
-                <div className="col-span-2">
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Qtd. de cores que o cliente pode escolher</label>
-                  <div className="flex gap-2 mt-1">
-                    {[1, 2, 3].map(n => (
-                      <button
-                        key={n}
-                        type="button"
-                        onClick={() => setForm({ ...form, maxColors: n })}
-                        className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-colors ${(form.maxColors ?? 1) === n ? 'bg-indigo-600 text-white border-indigo-600' : 'border-slate-300 text-slate-600 hover:border-indigo-400'}`}
-                      >
-                        {n} {n === 1 ? 'cor' : 'cores'}
-                      </button>
-                    ))}
+                {form.line === 'PET' && (
+                  <div className="col-span-2 space-y-3 p-3 rounded-xl border border-slate-200 bg-slate-50">
+                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Opções linha PET</p>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">Quantas cores o cliente pode escolher?</label>
+                      <div className="flex gap-2">
+                        {[1, 2, 3].map(n => (
+                          <button
+                            key={n}
+                            type="button"
+                            onClick={() => setForm({ ...form, maxColors: n })}
+                            className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-colors ${(form.maxColors ?? 3) === n ? 'bg-indigo-600 text-white border-indigo-600' : 'border-slate-300 text-slate-600 hover:border-indigo-400'}`}
+                          >
+                            {n} {n === 1 ? 'cor' : 'cores'}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex gap-4">
+                      <label className="flex items-center gap-2 cursor-pointer text-sm">
+                        <input type="checkbox" checked={form.hideTexture ?? false} onChange={e => setForm({ ...form, hideTexture: e.target.checked })} className="accent-indigo-600" />
+                        Ocultar escolha de textura
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer text-sm">
+                        <input type="checkbox" checked={form.hidePetName ?? false} onChange={e => setForm({ ...form, hidePetName: e.target.checked })} className="accent-indigo-600" />
+                        Ocultar nome do Pet
+                      </label>
+                    </div>
                   </div>
-                </div>
+                )}
                 <div className="col-span-2">
                   <label className="block text-sm font-medium text-slate-700 mb-2">Imagens</label>
                   <div className="flex flex-wrap gap-2 mb-2">

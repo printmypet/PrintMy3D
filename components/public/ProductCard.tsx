@@ -54,10 +54,7 @@ const initialCustomization = (product: Product): Customization => {
 
 const PERSONALIZATION_PRICE = 9.90;
 const PERSONALIZED_PRODUCTS = ['lickbowl'];
-const COMEDOURO_PRODUCTS = ['comedouro elevado'];
-const SINGLE_COLOR_PRODUCTS = ['colher para ração', 'colher para petiscos (churu)', 'comedouro japandi'];
 const TEAM_NAME_PRODUCTS = ['porta-latas copa do mundo'];
-const HIDE_TEXTURE_PRODUCTS = ['spin&treat', 'mega brain', 'pawspin treat roller'];
 
 const COLOR_LABELS: Record<string, { top?: string; ball?: string; base?: string }> = {
   'spin&treat': { top: 'Cor das Hastes', ball: 'Cor do Suporte', base: 'Cor do Pote' },
@@ -91,17 +88,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, partsColors, 
   const nextImg = (e: React.MouseEvent) => { e.stopPropagation(); setImgIndex(i => (i + 1) % images.length); };
 
   const isPersonalizable = PERSONALIZED_PRODUCTS.includes(product.name.toLowerCase().trim());
-  const isComedouro = COMEDOURO_PRODUCTS.includes(product.name.toLowerCase().trim());
-  const isSingleColor = SINGLE_COLOR_PRODUCTS.includes(product.name.toLowerCase().trim());
-  const isHideTexture = HIDE_TEXTURE_PRODUCTS.includes(product.name.toLowerCase().trim());
   const hasTeamName = TEAM_NAME_PRODUCTS.includes(product.name.toLowerCase().trim());
+  const maxColors = product.maxColors ?? 3;
+  const isHideTexture = product.hideTexture ?? false;
+  const isHidePetName = product.hidePetName ?? false;
 
   const handleAdd = () => {
     if (hasSizes && !selectedSize) {
       alert('Por favor, selecione um tamanho.');
       return;
     }
-    if (product.line === 'PET' && !isPersonalizable && !isSingleColor && !(customization as PetCustomization).petName.trim()) {
+    if (product.line === 'PET' && !isPersonalizable && !isHidePetName && !(customization as PetCustomization).petName.trim()) {
       alert('Por favor, informe o nome do pet.');
       return;
     }
@@ -238,12 +235,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, partsColors, 
                   onChange={v => setCustomization(v)}
                   partsColors={partsColors}
                   availableTextures={availableTextures}
-                  hidePetName={isPersonalizable}
+                  hidePetName={isPersonalizable || isHidePetName}
                   partImages={PART_IMAGES[product.name]}
                   colorLabels={COLOR_LABELS[product.name.toLowerCase().trim()]}
                   hideTexture={isHideTexture}
-                  comedouroMode={isComedouro}
-                  singleColorMode={isSingleColor}
+                  maxColors={maxColors}
                 />
               )}
               {product.line === 'HOME' && (

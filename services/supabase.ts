@@ -247,6 +247,9 @@ export const fetchProducts = async (line?: string): Promise<Product[]> => {
     highlight: p.highlight || false,
     sizes: p.sizes || [],
     images: p.images || (p.image_url ? [p.image_url] : []),
+    maxColors: p.max_colors ?? 3,
+    hideTexture: p.hide_texture ?? false,
+    hidePetName: p.hide_pet_name ?? false,
   }));
 };
 
@@ -267,7 +270,9 @@ export const fetchAllProducts = async (): Promise<Product[]> => {
     highlight: p.highlight || false,
     sizes: p.sizes || [],
     images: p.images || (p.image_url ? [p.image_url] : []),
-    maxColors: p.max_colors ?? 1,
+    maxColors: p.max_colors ?? 3,
+    hideTexture: p.hide_texture ?? false,
+    hidePetName: p.hide_pet_name ?? false,
   }));
 };
 
@@ -285,7 +290,9 @@ export const addProduct = async (product: Omit<Product, 'id'>) => {
     highlight: product.highlight || false,
     sizes: product.sizes && product.sizes.length > 0 ? product.sizes : null,
     images: product.images && product.images.length > 0 ? product.images : null,
-    max_colors: product.maxColors ?? 1,
+    max_colors: product.maxColors ?? 3,
+    hide_texture: product.hideTexture ?? false,
+    hide_pet_name: product.hidePetName ?? false,
   };
   const { error } = await supabase.from('products').insert([payload]);
   if (error) throw error;
@@ -305,7 +312,9 @@ export const updateProduct = async (product: Product) => {
     highlight: product.highlight || false,
     sizes: product.sizes && product.sizes.length > 0 ? product.sizes : null,
     images: product.images && product.images.length > 0 ? product.images : null,
-    max_colors: product.maxColors ?? 1,
+    max_colors: product.maxColors ?? 3,
+    hide_texture: product.hideTexture ?? false,
+    hide_pet_name: product.hidePetName ?? false,
   };
   const { error } = await supabase.from('products').update(payload).eq('id', product.id);
   if (error) throw error;

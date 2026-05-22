@@ -113,6 +113,8 @@ export interface Product {
   highlight?: boolean;
   sizes?: ProductSize[];
   maxColors?: number;
+  hideTexture?: boolean;
+  hidePetName?: boolean;
 }
 
 export interface Category {
