@@ -55,7 +55,7 @@ const initialCustomization = (product: Product): Customization => {
 const PERSONALIZATION_PRICE = 9.90;
 const PERSONALIZED_PRODUCTS = ['lickbowl'];
 const COMEDOURO_PRODUCTS = ['comedouro elevado'];
-const SINGLE_COLOR_PRODUCTS = ['colher para ração', 'colher para petiscos (churu)'];
+const SINGLE_COLOR_PRODUCTS = ['colher para ração', 'colher para petiscos (churu)', 'comedouro japandi'];
 const TEAM_NAME_PRODUCTS = ['porta-latas copa do mundo'];
 const HIDE_TEXTURE_PRODUCTS = ['spin&treat', 'mega brain', 'pawspin treat roller'];
 
