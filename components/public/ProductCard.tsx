@@ -89,7 +89,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, partsColors, 
 
   const isPersonalizable = PERSONALIZED_PRODUCTS.includes(product.name.toLowerCase().trim());
   const hasTeamName = TEAM_NAME_PRODUCTS.includes(product.name.toLowerCase().trim());
-  const maxColors = product.maxColors ?? 3;
+  const maxColors = isPersonalizable ? 3 : (product.maxColors ?? 3);
   const isHideTexture = product.hideTexture ?? false;
   const isHidePetName = product.hidePetName ?? false;
 
